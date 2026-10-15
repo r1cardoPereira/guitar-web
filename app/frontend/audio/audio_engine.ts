@@ -33,6 +33,7 @@ export class AudioEngine {
 
   private buffer: Float32Array<ArrayBuffer>;
   private clipLatched = false;
+  private connectedAt = 0;
 
   constructor(fftSize = 2048) {
     this.buffer = new Float32Array(new ArrayBuffer(fftSize * 4));
@@ -94,6 +95,9 @@ export class AudioEngine {
     this.mediaStream = await navigator.mediaDevices.getUserMedia(constraints);
     this.sourceNode = this.audioContext.createMediaStreamSource(this.mediaStream);
 
+    const availableChannels = Math.max(1, this.sourceNode.channelCount);
+    const selectedChannel = channelIndex >= availableChannels ? 0 : Math.max(0, channelIndex);
+
     this.splitterNode = this.audioContext.createChannelSplitter(2);
     this.analyserNode = this.audioContext.createAnalyser();
     this.analyserNode.fftSize = this.buffer.length;
@@ -101,11 +105,12 @@ export class AudioEngine {
 
     this.sourceNode.connect(this.splitterNode);
 
-    // Conecta o canal físico selecionado (ex: Entrada 2 para Hi-Z de guitarra na Scarlett) ao analisador
-    const selectedChannel = Math.max(0, Math.min(1, channelIndex));
+    // Conecta canal selecionado (ou canal 0 se o dispositivo for mono)
     this.channelMergerNode = this.audioContext.createChannelMerger(1);
     this.splitterNode.connect(this.channelMergerNode, selectedChannel, 0);
     this.channelMergerNode.connect(this.analyserNode);
+
+    this.connectedAt = performance.now();
   }
 
   /**
@@ -114,10 +119,11 @@ export class AudioEngine {
    * @param channelIndex - Novo canal selecionado (0 = Canal 1, 1 = Canal 2).
    */
   public switchChannel(channelIndex: number): void {
-    if (!this.splitterNode || !this.channelMergerNode) return;
+    if (!this.splitterNode || !this.channelMergerNode || !this.sourceNode) return;
 
     this.splitterNode.disconnect();
-    const selectedChannel = Math.max(0, Math.min(1, channelIndex));
+    const availableChannels = Math.max(1, this.sourceNode.channelCount);
+    const selectedChannel = channelIndex >= availableChannels ? 0 : Math.max(0, channelIndex);
     this.splitterNode.connect(this.channelMergerNode, selectedChannel, 0);
   }
 
@@ -139,7 +145,8 @@ export class AudioEngine {
     const peakDb = linearToDb(peakLinear);
 
     const isCurrentClip = isClipping(peakLinear);
-    if (isCurrentClip) {
+    const timeSinceConnect = performance.now() - this.connectedAt;
+    if (isCurrentClip && timeSinceConnect > 500) {
       this.clipLatched = true;
     }
 
