@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+set -e
+
+echo "🔍 [Pre-commit] Executando RuboCop..."
+bundle exec rubocop --parallel
+
+echo "🔍 [Pre-commit] Executando Typecheck (TypeScript)..."
+npm run typecheck
+
+echo "🔍 [Pre-commit] Executando Vitest (Áudio)..."
+npm test
+
+echo "🔍 [Pre-commit] Executando RSpec..."
+bundle exec rspec
+
+echo "✅ [Pre-commit] Todas as checagens passaram com sucesso!"

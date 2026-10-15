@@ -1,0 +1,38 @@
+# Ignorar dependências locais isoladas
+vendor/bundle/
+node_modules/
+
+# Logs e arquivos temporários
+log/*
+tmp/*
+!log/.keep
+!tmp/.keep
+!tmp/pids/.keep
+
+# Compilação do Vite
+public/vite/
+public/vite-dev/
+public/assets/
+
+# Cobertura de Testes
+coverage/
+
+# Segredos e variáveis de ambiente
+.env
+.env.*
+config/master.key
+config/credentials/*.key
+
+# Armazenamento local
+storage/*
+!storage/.keep
+tmp/storage/*
+!tmp/storage/.keep
+
+# Arquivos de IDE e SO
+.DS_Store
+.idea/
+.vscode/
+*.swp
+*~
+.agents/

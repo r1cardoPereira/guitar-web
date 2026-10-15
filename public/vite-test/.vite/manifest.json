@@ -1,0 +1,14 @@
+{
+  "entrypoints/application.js": {
+    "file": "assets/application-DBfCPIOZ.js",
+    "name": "entrypoints/application.js",
+    "src": "entrypoints/application.js",
+    "isEntry": true
+  },
+  "entrypoints/audio_diagnostics.ts": {
+    "file": "assets/audio_diagnostics-23pHyWSD.js",
+    "name": "entrypoints/audio_diagnostics.ts",
+    "src": "entrypoints/audio_diagnostics.ts",
+    "isEntry": true
+  }
+}
