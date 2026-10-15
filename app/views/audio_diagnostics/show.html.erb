@@ -1,0 +1,131 @@
+<% content_for :head do %>
+  <%= vite_typescript_tag 'audio_diagnostics' %>
+<% end %>
+
+<div id="audio-diagnostics-container" class="diagnostics-app">
+  <header class="app-header">
+    <div class="brand">
+      <span class="icon">🎸</span>
+      <h1>GuitarWeb <span class="subtitle">| Diagnóstico de Áudio USB</span></h1>
+    </div>
+    <div class="status-wrapper">
+      <span id="status-badge" class="badge badge-muted">DESCONECTADO</span>
+    </div>
+  </header>
+
+  <main class="dashboard-grid">
+    <!-- Painel de Configuração e Dispositivos -->
+    <section class="card config-card">
+      <h2 class="card-title">1. Dispositivo e Conexão</h2>
+      
+      <div class="field-group">
+        <label for="device-select">Dispositivo de Entrada:</label>
+        <div class="input-with-button">
+          <select id="device-select" class="form-select">
+            <option value="">Carregando dispositivos...</option>
+          </select>
+          <button id="refresh-devices-btn" class="btn btn-secondary" title="Solicitar permissão e listar interfaces">
+            🔄 Atualizar
+          </button>
+        </div>
+        <small class="hint">Selecione sua interface USB (Focusrite, Behringer, etc.) ou placa de som.</small>
+      </div>
+
+      <div class="field-group">
+        <label for="channel-select">Canal de Entrada (Hardware):</label>
+        <select id="channel-select" class="form-select">
+          <option value="0">Canal 1 (Padrão / Entrada 1)</option>
+          <option value="1">Canal 2 (Entrada Hi-Z / Instrumento)</option>
+        </select>
+        <small class="hint">Interfaces estéreo (ex: Scarlett 2i2) costumam ter o instrumento na entrada 2.</small>
+      </div>
+
+      <div class="actions">
+        <button id="connect-btn" class="btn btn-primary">
+          ▶ Conectar e Iniciar Teste
+        </button>
+        <button id="disconnect-btn" class="btn btn-danger hidden">
+          ⏹ Desconectar
+        </button>
+      </div>
+    </section>
+
+    <!-- Painel do Medidor de Sinal (VU Meter) -->
+    <section class="card vu-card">
+      <div class="card-header-flex">
+        <h2 class="card-title">2. Nível de Sinal (VU Meter)</h2>
+        <div class="clip-box">
+          <span id="clip-indicator" class="clip-led">CLIP</span>
+          <button id="reset-clip-btn" class="btn-micro" title="Limpar indicador de saturação">Reset</button>
+        </div>
+      </div>
+
+      <div class="meter-wrapper">
+        <canvas id="vu-canvas" width="600" height="32" class="vu-canvas"></canvas>
+        <div class="vu-scale">
+          <span>-60</span>
+          <span>-40</span>
+          <span>-24</span>
+          <span>-18</span>
+          <span>-12</span>
+          <span>-6</span>
+          <span>-3</span>
+          <span class="red-mark">0 dBFS</span>
+        </div>
+      </div>
+
+      <div class="meters-summary">
+        <div class="meter-stat">
+          <span class="stat-label">RMS Atual:</span>
+          <span id="rms-val" class="stat-val">-∞ dBFS</span>
+        </div>
+        <div class="meter-stat">
+          <span class="stat-label">Pico (Peak):</span>
+          <span id="peak-val" class="stat-val">-∞ dBFS</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Osciloscópio / Forma de Onda em Tempo Real -->
+    <section class="card osc-card">
+      <h2 class="card-title">3. Forma de Onda em Tempo Real (Osciloscópio)</h2>
+      <div class="osc-wrapper">
+        <canvas id="osc-canvas" width="600" height="120" class="osc-canvas"></canvas>
+      </div>
+      <small class="hint">Mostra a vibração analógica captada da guitarra. Toque uma corda para verificar se há sinal limpo.</small>
+    </section>
+
+    <!-- Métricas do Hardware e Sistema -->
+    <section class="card telemetry-card">
+      <h2 class="card-title">4. Telemetria do Sistema</h2>
+      <div class="telemetry-grid">
+        <div class="telemetry-item">
+          <span class="telemetry-label">Taxa de Amostragem</span>
+          <span id="sample-rate-val" class="telemetry-value">---</span>
+        </div>
+        <div class="telemetry-item">
+          <span class="telemetry-label">Latência Base</span>
+          <span id="base-latency-val" class="telemetry-value">---</span>
+        </div>
+        <div class="telemetry-item">
+          <span class="telemetry-label">Latência Saída</span>
+          <span id="output-latency-val" class="telemetry-value">---</span>
+        </div>
+        <div class="telemetry-item">
+          <span class="telemetry-label">Filtros Nativos SO</span>
+          <span class="telemetry-value status-ok">Desativados (Puro)</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Guia Rápido de Calibração -->
+    <section class="card instructions-card">
+      <h2 class="card-title">💡 Como calibrar sua guitarra elétrica</h2>
+      <ul class="steps-list">
+        <li><strong>1. Chave Hi-Z / INST:</strong> Na sua interface física, ative o botão "INST" no canal da guitarra para casar a alta impedância dos captadores.</li>
+        <li><strong>2. Ajuste de Ganho (Gain):</strong> Toque a palhetada mais forte do seu riff. O medidor deve ficar entre <code>-12 dBFS</code> e <code>-6 dBFS</code> (faixa verde/amarela).</li>
+        <li><strong>3. Evite o Clip Vermelho:</strong> Se o LED <code>CLIP</code> acender, diminua o botão de ganho físico da interface para evitar distorção digital indesejada.</li>
+      </ul>
+    </section>
+  </main>
+</div>
