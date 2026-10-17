@@ -1,0 +1,36 @@
+FROM ruby:3.2.3-slim
+
+# Instala Node.js oficial a partir da imagem do Node
+COPY --from=node:20-slim /usr/local /usr/local
+
+# Instala dependências nativas para compilação de gems Ruby e PostgreSQL
+RUN apt-get update -qq && \
+    apt-get install --no-install-recommends -y \
+      build-essential \
+      git \
+      libpq-dev \
+      libvips \
+      libyaml-dev \
+      pkg-config && \
+    rm -rf /var/lib/apt/lists /var/cache/apt/archives
+
+WORKDIR /app
+
+# Flags seguras para compilação de C no Linux/GCC
+ENV BUNDLE_BUILD__PRISM="--with-cflags='-fno-var-tracking -O1'" \
+    BUNDLE_PATH="/usr/local/bundle"
+
+# Instalação prévia das gems para aproveitar cache de camadas do Docker
+COPY Gemfile Gemfile.lock ./
+RUN bundle install
+
+# Instalação prévia das dependências JS
+COPY package.json package-lock.json ./
+RUN npm install
+
+# Copia código da aplicação
+COPY . .
+
+EXPOSE 3000 3036
+
+CMD ["bin/docker-dev"]

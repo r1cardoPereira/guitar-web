@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+set -e
+
+# Remove pid residual em caso de encerramento abrupto do container
+rm -f tmp/pids/server.pid
+
+echo "🎸 [GuitarWeb] Preparando banco de dados..."
+bundle exec rails db:prepare
+
+echo "⚡ [GuitarWeb] Iniciando Vite dev server..."
+bin/vite dev &
+
+echo "🚀 [GuitarWeb] Iniciando Rails Puma server..."
+exec bin/rails server -b 0.0.0.0 -p 3000

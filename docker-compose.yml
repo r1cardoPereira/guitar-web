@@ -17,5 +17,32 @@ services:
       timeout: 5s
       retries: 5
 
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: guitar_web_app
+    restart: unless-stopped
+    command: bin/docker-dev
+    volumes:
+      - .:/app
+      - bundle_data:/usr/local/bundle
+      - node_modules_data:/app/node_modules
+    ports:
+      - "3000:3000"
+      - "3036:3036"
+    environment:
+      RAILS_ENV: development
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USERNAME: postgres
+      DB_PASSWORD: password
+      VITE_RUBY_HOST: 0.0.0.0
+    depends_on:
+      postgres:
+        condition: service_healthy
+
 volumes:
   postgres_data:
+  bundle_data:
+  node_modules_data:
